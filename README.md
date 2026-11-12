@@ -9,9 +9,9 @@ Backend for **دليل التقنية الذكية | Smart Tech Guide**. This pr
 - PostgreSQL-backed sessions (so OAuth sessions are not stored in an in-memory process store).
 - Endpoint to list the authenticated user's Blogger blogs.
 - Endpoint to create a Blogger post as a draft or publish it.
-- Gemini article generation with configurable model failover to reduce interruptions during temporary capacity spikes.
+- Open-weight article generation through OpenRouter's free-model router.
 - Encrypted persistence of the Blogger refresh token for background publishing.
-- Daily publishing endpoint protected by a shared secret, with a GitHub Actions schedule.
+- Daily publishing endpoint protected by a dedicated automation secret, with a GitHub Actions schedule.
 - Basic article checks (minimum length, structure, and removal of executable HTML), plus a fixed topic list to prevent reusing the same planned topic.
 
 ## Requirements
@@ -43,8 +43,6 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 | `GOOGLE_CLIENT_SECRET` | OAuth web client secret |
 | `GOOGLE_REDIRECT_URI` | Exact deployed callback URL |
 | `BLOGGER_SCOPE` | Blogger OAuth scope |
-| `GEMINI_API_KEY` | Gemini API key from Google AI Studio |
-| `GEMINI_MODELS` | Optional comma-separated Gemini model fallback order; defaults to `gemini-3.5-flash-lite,gemini-3.8-flash,gemini-3.1-flash-lite` |
 
 ## API
 
@@ -55,17 +53,14 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 - `GET /api/blogs` — list Blogger blogs for the connected account.
 - `POST /api/posts` — create a post. JSON body: `{ "blogId": "...", "title": "...", "content": "...", "labels": [], "isDraft": true }`.
 - `GET /api/automation/status` — show automation setup status.
-- `POST /api/automation/run` — generate and publish one article; requires `Authorization: Bearer <GEMINI_API_KEY>`.
 - `POST /auth/logout` — end the current session.
 
 ## Daily publishing setup
 
-1. Add `GEMINI_API_KEY` to the Render web service environment.
 2. After deployment, open `/api/blogs` once while signed in; this stores the Blogger refresh token encrypted in PostgreSQL for background publishing.
-3. In GitHub repository Settings → Secrets and variables → Actions, create one repository secret named `GEMINI_API_KEY` with the same Gemini API key.
 4. The workflow runs daily at 06:00 UTC (09:00 Saudi Arabia time). It can also be started manually from the Actions tab.
 
-The initial topic queue contains 16 planned articles and stops when those topics are used. The article checks are automated safeguards, not a guarantee of factual accuracy, originality, SEO performance, or AdSense approval. Gemini model availability and free-tier limits vary by model, account, and current capacity. The generator tries the configured model list in order and retries temporary capacity/rate-limit failures before moving to the next model. Google may process submitted prompts/content under its free-tier terms.
+The initial topic queue contains 16 planned articles and stops when those topics are used. The article checks are automated safeguards, not a guarantee of factual accuracy, originality, SEO performance, or AdSense approval. The default OpenRouter free-model router selects from currently available free models and is rate-limited; availability, output quality, and response length can vary. The system retries temporary provider failures and rejects articles that fail editorial checks. OpenRouter and its selected inference provider process submitted prompts/content under their applicable terms.
 
 The Blogger API publishes posts but does not manage the Blogger theme/template. Theme installation remains a separate Blogger-admin task.
 
