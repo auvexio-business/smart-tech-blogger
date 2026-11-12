@@ -245,19 +245,19 @@ async function persistBloggerCredentials(tokens) {
 
 function cleanGeneratedHtml(html) {
   return String(html || "")
-    .replace(/<\\s*(script|style|iframe|object|embed)[^>]*>[\\s\\S]*?<\\s*\\/\\s*\\1\\s*>/gi, "")
-    .replace(/\\s+on[a-z]+\\s*=\\s*("[^"]*"|'[^']*'|[^\\s>]+)/gi, "")
-    .replace(/javascript\\s*:/gi, "");
+    .replace(/<\s*(script|style|iframe|object|embed)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
+    .replace(/\s+on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/javascript\s*:/gi, "");
 }
 
 async function generateArticle(topic) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
   const languageInstruction = topic.language === "ar" ? "Write in clear, natural Modern Standard Arabic." : "Write in clear, natural international English.";
-  const prompt = "You are the editor of Smart Tech Guide, a practical bilingual technology blog.\\n" +
-    "Create one genuinely useful, original, detailed evergreen tutorial about: " + topic.topic + "\\n" +
-    languageInstruction + "\\nAudience: general readers and beginners worldwide.\\n" +
-    "Return ONLY valid JSON with keys: title, html, labels.\\n" +
+  const prompt = "You are the editor of Smart Tech Guide, a practical bilingual technology blog.\n" +
+    "Create one genuinely useful, original, detailed evergreen tutorial about: " + topic.topic + "\n" +
+    languageInstruction + "\nAudience: general readers and beginners worldwide.\n" +
+    "Return ONLY valid JSON with keys: title, html, labels.\n" +
     "Requirements: title specific, useful, SEO-friendly, not clickbait. html must be Blogger-friendly HTML using h2/h3/p/ul/ol/li/strong/blockquote/code only. Write at least 900 words, with introduction, step-by-step guidance, practical examples, common mistakes, FAQ, and conclusion. Be accurate and conservative. Do not invent statistics, features, prices, dates, research, quotations, or source URLs. Avoid changing product details and keyword stuffing. Do not mention AI. labels must be 3 to 5 relevant strings. No markdown fences.";
   const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent", {
     method: "POST",
@@ -274,8 +274,8 @@ async function generateArticle(topic) {
   try { article = JSON.parse(textOutput); } catch { throw new Error("Gemini returned content that was not valid JSON"); }
   const title = typeof article.title === "string" ? article.title.trim() : "";
   const html = cleanGeneratedHtml(article.html);
-  const wordCount = html.replace(/<[^>]*>/g, " ").split(/\\s+/).filter(Boolean).length;
-  if (!title || wordCount < 650 || !/<h2[\\s>]/i.test(html) || !/<p[\\s>]/i.test(html)) {
+  const wordCount = html.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
+  if (!title || wordCount < 650 || !/<h2[\s>]/i.test(html) || !/<p[\s>]/i.test(html)) {
     throw new Error("Article did not pass minimum quality checks (word count: " + wordCount + ")");
   }
   const labels = Array.isArray(article.labels) ? article.labels.filter((label) => typeof label === "string").slice(0, 5) : ["Technology", "Digital Skills"];
@@ -328,7 +328,7 @@ app.get("/api/automation/status", async (_req, res) => {
 });
 
 app.post("/api/automation/run", async (req, res) => {
-  const suppliedSecret = req.get("authorization")?.replace(/^Bearer\\s+/i, "") || "";
+  const suppliedSecret = req.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
   if (!process.env.AUTOMATION_SECRET || !safeEqual(suppliedSecret, process.env.AUTOMATION_SECRET)) {
     return res.status(401).json({ error: "unauthorized" });
   }
