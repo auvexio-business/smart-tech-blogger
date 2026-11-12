@@ -329,8 +329,8 @@ app.get("/api/automation/status", async (_req, res) => {
 });
 
 app.post("/api/automation/run", async (req, res) => {
-  const suppliedSecret = req.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
-  if (!process.env.AUTOMATION_SECRET || !safeEqual(suppliedSecret, process.env.AUTOMATION_SECRET)) {
+  const suppliedKey = req.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
+  if (!process.env.GEMINI_API_KEY || !safeEqual(suppliedKey, process.env.GEMINI_API_KEY)) {
     return res.status(401).json({ error: "unauthorized" });
   }
   try {
