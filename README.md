@@ -9,7 +9,10 @@ Backend for **دليل التقنية الذكية | Smart Tech Guide**. This pr
 - PostgreSQL-backed sessions (so OAuth sessions are not stored in an in-memory process store).
 - Endpoint to list the authenticated user's Blogger blogs.
 - Endpoint to create a Blogger post as a draft or publish it.
-- Basic security headers, rate limiting on OAuth routes, and input validation.
+- Gemini 2.5 Flash-Lite article generation using the free tier where available.
+- Encrypted persistence of the Blogger refresh token for background publishing.
+- Daily publishing endpoint protected by a shared secret, with a GitHub Actions schedule.
+- Basic article checks (minimum length, structure, and removal of executable HTML), plus a fixed topic list to prevent reusing the same planned topic.
 
 ## Requirements
 
@@ -40,6 +43,8 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 | `GOOGLE_CLIENT_SECRET` | OAuth web client secret |
 | `GOOGLE_REDIRECT_URI` | Exact deployed callback URL |
 | `BLOGGER_SCOPE` | Blogger OAuth scope |
+| `GEMINI_API_KEY` | Gemini API key from Google AI Studio |
+| `AUTOMATION_SECRET` | Long random secret required by the scheduled publishing endpoint |
 
 ## API
 
@@ -49,11 +54,20 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 - `GET /api/status` — whether this browser session is connected.
 - `GET /api/blogs` — list Blogger blogs for the connected account.
 - `POST /api/posts` — create a post. JSON body: `{ "blogId": "...", "title": "...", "content": "...", "labels": [], "isDraft": true }`.
+- `GET /api/automation/status` — show automation setup status.
+- `POST /api/automation/run` — generate and publish one article; requires `Authorization: Bearer <AUTOMATION_SECRET>`.
 - `POST /auth/logout` — end the current session.
 
-## Important next steps
+## Daily publishing setup
 
-This is the secure integration foundation, **not yet a complete autonomous publishing system**. Before unattended publishing is enabled, the project still needs a persistent content/job workflow, a scheduler, editorial and factual-quality checks, duplicate detection, bilingual content generation, operational logging/alerts, and deployment configuration.
+1. Add `GEMINI_API_KEY` and `AUTOMATION_SECRET` to the Render web service environment.
+2. After deployment, open `/api/blogs` once while signed in; this stores the Blogger refresh token encrypted in PostgreSQL for background publishing.
+3. In GitHub repository Settings → Secrets and variables → Actions, create:
+   - `BLOGGER_AUTOMATION_URL` = `https://smart-tech-blogger.onrender.com`
+   - `BLOGGER_AUTOMATION_SECRET` = the same value as Render's `AUTOMATION_SECRET`
+4. The workflow runs daily at 06:00 UTC (09:00 Saudi Arabia time). It can also be started manually from the Actions tab.
+
+The initial topic queue contains 16 planned articles and stops when those topics are used. The article checks are automated safeguards, not a guarantee of factual accuracy, originality, SEO performance, or AdSense approval. The free Gemini tier has model- and account-specific limits, and Google may process submitted prompts/content under its free-tier terms.
 
 The Blogger API publishes posts but does not manage the Blogger theme/template. Theme installation remains a separate Blogger-admin task.
 
