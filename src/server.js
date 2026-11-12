@@ -260,7 +260,7 @@ async function generateArticle(topic) {
     languageInstruction + "\nAudience: general readers and beginners worldwide.\n" +
     "Return ONLY valid JSON with keys: title, html, labels.\n" +
     "Requirements: title specific, useful, SEO-friendly, not clickbait. html must be Blogger-friendly HTML using h2/h3/p/ul/ol/li/strong/blockquote/code only. Write at least 900 words, with introduction, step-by-step guidance, practical examples, common mistakes, FAQ, and conclusion. Be accurate and conservative. Do not invent statistics, features, prices, dates, research, quotations, or source URLs. Avoid changing product details and keyword stuffing. Do not mention AI. labels must be 3 to 5 relevant strings. No markdown fences.";
-  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent", {
+  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify({
