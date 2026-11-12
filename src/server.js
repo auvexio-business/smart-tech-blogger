@@ -254,35 +254,99 @@ function cleanGeneratedHtml(html) {
 async function generateArticle(topic) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
-  const languageInstruction = topic.language === "ar" ? "Write in clear, natural Modern Standard Arabic." : "Write in clear, natural international English.";
-  const prompt = "You are the editor of Smart Tech Guide, a practical bilingual technology blog.\n" +
-    "Create one genuinely useful, original, detailed evergreen tutorial about: " + topic.topic + "\n" +
-    languageInstruction + "\nAudience: general readers and beginners worldwide.\n" +
-    "Return ONLY valid JSON with keys: title, html, labels.\n" +
-    "Requirements: title specific, useful, SEO-friendly, not clickbait. html must be Blogger-friendly HTML using h2/h3/p/ul/ol/li/strong/blockquote/code only. Write at least 900 words, with introduction, step-by-step guidance, practical examples, common mistakes, FAQ, and conclusion. Be accurate and conservative. Do not invent statistics, features, prices, dates, research, quotations, or source URLs. Avoid changing product details and keyword stuffing. Do not mention AI. labels must be 3 to 5 relevant strings. No markdown fences.";
+
+  const languageInstruction = topic.language === "ar"
+    ? "Write in clear, natural Modern Standard Arabic."
+    : "Write in clear, natural international English.";
+
+  const prompt = [
+    "You are the senior fact-checking editor of Smart Tech Guide, a practical bilingual technology publication.",
+    "Create a distinctive, genuinely useful tutorial for this exact topic: " + topic.topic,
+    languageInstruction,
+    "Audience: general readers and beginners worldwide. Write for people, not search engines.",
+    "Return ONLY valid JSON with keys: title, metaDescription, html, labels, sources.",
+    "The title must be specific, natural, accurate, and preferably 45-65 characters. Never use clickbait.",
+    "metaDescription must accurately summarize the article in 120-160 characters.",
+    "Write at least 900 substantive words. Do not pad, repeat the same advice, or use generic filler.",
+    "Structure: useful introduction; clear H2/H3 sections; numbered practical steps where appropriate; at least two concrete examples; common mistakes and how to avoid them; concise FAQ; practical conclusion.",
+    "Explain trade-offs and limitations. Distinguish facts from recommendations. Do not claim a tool is free, available everywhere, or has a feature unless certain.",
+    "Do not invent statistics, studies, quotes, product features, prices, dates, laws, or URLs. Avoid unsupported absolute claims.",
+    "Use specific, actionable advice that adds value beyond a generic overview. Explain why each important step matters.",
+    "HTML may use only h2, h3, p, ul, ol, li, strong, blockquote, code, and a tags. Use descriptive link text.",
+    "Include 2-4 genuinely relevant primary/official sources in the article as normal HTML links, and return the same sources as [{\"title\":\"...\",\"url\":\"https://...\"}]. Prefer official documentation or recognized public authorities. Never guess a URL; if you cannot confidently provide a precise source URL, do not include it.",
+    "Use only sources from these trusted domains where relevant: support.google.com, developers.google.com, cisa.gov, nist.gov, consumer.ftc.gov, ftc.gov, support.microsoft.com, support.apple.com, support.mozilla.org, ic3.gov, europa.eu.",
+    "Do not add fabricated internal links. Do not mention AI or that the article was generated.",
+    "labels must contain 3-5 concise, relevant strings. No keyword stuffing. No markdown fences."
+  ].join("\n");
+
   const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.65, maxOutputTokens: 8192 }
+      generationConfig: { responseMimeType: "application/json", temperature: 0.45, maxOutputTokens: 8192 }
     })
   });
+
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.error?.message || "Gemini request failed (" + response.status + ")");
   const textOutput = payload.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("") || "";
-  let article;
-  try { article = JSON.parse(textOutput); } catch { throw new Error("Gemini returned content that was not valid JSON"); }
-  const title = typeof article.title === "string" ? article.title.trim() : "";
-  const html = cleanGeneratedHtml(article.html);
-  const wordCount = html.replace(/<[^>]*>/g, " ").split(/\s+/).filter(Boolean).length;
-  if (!title || wordCount < 650 || !/<h2[\s>]/i.test(html) || !/<p[\s>]/i.test(html)) {
-    throw new Error("Article did not pass minimum quality checks (word count: " + wordCount + ")");
-  }
-  const labels = Array.isArray(article.labels) ? article.labels.filter((label) => typeof label === "string").slice(0, 5) : ["Technology", "Digital Skills"];
-  return { title, html, labels, wordCount };
-}
 
+  let article;
+  try {
+    article = JSON.parse(textOutput);
+  } catch {
+    throw new Error("Gemini returned content that was not valid JSON");
+  }
+
+  const title = typeof article.title === "string" ? article.title.trim() : "";
+  const metaDescription = typeof article.metaDescription === "string" ? article.metaDescription.trim() : "";
+  const html = cleanGeneratedHtml(article.html);
+  const plainText = html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+  const h2Count = (html.match(/<h2[\s>]/gi) || []).length;
+  const faqPresent = /frequently asked questions|common questions|الأسئلة الشائعة/i.test(plainText);
+  const exampleCount = (plainText.match(/\bexample\b|\bfor instance\b|مثال/gi) || []).length;
+
+  const trustedDomains = new Set([
+    "support.google.com", "developers.google.com", "cisa.gov", "nist.gov",
+    "consumer.ftc.gov", "ftc.gov", "support.microsoft.com", "support.apple.com",
+    "support.mozilla.org", "ic3.gov", "europa.eu"
+  ]);
+  const sources = Array.isArray(article.sources) ? article.sources : [];
+  const validSources = sources.filter((source) => {
+    if (!source || typeof source.title !== "string" || typeof source.url !== "string") return false;
+    try {
+      const parsed = new URL(source.url);
+      const host = parsed.hostname.toLowerCase();
+      const trusted = [...trustedDomains].some((domain) => host === domain || host.endsWith("." + domain));
+      return parsed.protocol === "https:" && trusted && html.includes(source.url);
+    } catch {
+      return false;
+    }
+  });
+
+  const labels = Array.isArray(article.labels)
+    ? article.labels.filter((label) => typeof label === "string" && label.trim()).map((label) => label.trim()).slice(0, 5)
+    : [];
+
+  const checks = {
+    title: title.length >= 25 && title.length <= 90,
+    metaDescription: metaDescription.length >= 80 && metaDescription.length <= 180,
+    length: wordCount >= 900,
+    structure: h2Count >= 4 && /<h3[\s>]/i.test(html) && /<p[\s>]/i.test(html),
+    practicalExamples: exampleCount >= 2,
+    faq: faqPresent,
+    sources: validSources.length >= 2,
+    labels: labels.length >= 3
+  };
+  const failed = Object.entries(checks).filter(([, passed]) => !passed).map(([name]) => name);
+  if (failed.length) {
+    throw new Error("Article failed editorial quality checks: " + failed.join(", ") + " (word count: " + wordCount + ")");
+  }
+
+  return { title, metaDescription, html, labels, sources: validSources, wordCount };
+}
 async function runDailyAutomation() {
   await ensureAutomationTables();
   const credentialResult = await pool.query("SELECT blog_id, refresh_token_enc FROM automation_credentials WHERE id = 1");
@@ -299,7 +363,7 @@ async function runDailyAutomation() {
   const published = await blogger.posts.insert({
     blogId: saved.blog_id,
     isDraft: false,
-    requestBody: { title: article.title, content: article.html, labels: article.labels }
+    requestBody: { title: article.title, content: article.html, labels: article.labels, searchDescription: article.metaDescription }
   });
   await pool.query(
     "INSERT INTO automation_posts (topic_key, title, blogger_post_id, language) VALUES ($1, $2, $3, $4)",
