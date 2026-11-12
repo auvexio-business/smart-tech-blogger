@@ -1,0 +1,20 @@
+name: Safe Groq writer test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-writer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate an article without publishing
+        env:
+          AUTOMATION_SECRET: ${{ secrets.AUTOMATION_SECRET }}
+        run: |
+          test -n "$AUTOMATION_SECRET"
+          curl --fail-with-body --silent --show-error \
+            --max-time 300 \
+            -X POST \
+            -H "Authorization: Bearer $AUTOMATION_SECRET" \
+            -H "Content-Type: application/json" \
+            "https://smart-tech-blogger.onrender.com/api/automation/test-writer"
