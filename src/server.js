@@ -306,7 +306,7 @@ async function generateArticle(topic) {
   const wordCount = plainText.split(/\s+/).filter(Boolean).length;
   const h2Count = (html.match(/<h2[\s>]/gi) || []).length;
   const faqPresent = /frequently asked questions|common questions|الأسئلة الشائعة|أسئلة شائعة/i.test(plainText);
-  const exampleCount = (plainText.match(/\bexample\b|\bfor instance\b|مثال/gi) || []).length;
+  const exampleCount = (plainText.match(/\bexample\b|\bfor instance\b|مثال|مثلًا|على سبيل المثال/gi) || []).length;
 
   const trustedDomains = new Set([
     "support.google.com", "developers.google.com", "cisa.gov", "nist.gov",
