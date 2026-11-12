@@ -317,7 +317,7 @@ async function generateArticle(topic) {
   if (!textOutput) throw new Error("Groq model generation failed: " + (lastError?.message || "No model response"));
   let article;
   try {
-    const normalized = textOutput.trim().replace(/^```(?:json)?s*/i, "").replace(/s*```$/, "");
+    const normalized = textOutput.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
     article = JSON.parse(normalized);
   } catch {
     throw new Error("Groq model returned content that was not valid JSON");
@@ -326,10 +326,10 @@ async function generateArticle(topic) {
   const metaDescription = typeof article.metaDescription === "string" ? article.metaDescription.trim() : "";
   const html = cleanGeneratedHtml(article.html);
   const plainText = html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
-  const wordCount = plainText.split(/s+/).filter(Boolean).length;
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length;
   const h2Count = (html.match(/<h2[s>]/gi) || []).length;
   const faqPresent = /frequently asked questions|common questions|الأسئلة الشائعة|أسئلة شائعة/i.test(plainText);
-  const exampleCount = (plainText.match(/example|for instance|مثال|مثلًا|على سبيل المثال/gi) || []).length;
+  const exampleCount = (plainText.match(/\bexample\b|\bfor instance\b|مثال|مثلًا|على سبيل المثال/gi) || []).length;
   const trustedDomains = new Set(["support.google.com", "developers.google.com", "cisa.gov", "nist.gov", "consumer.ftc.gov", "ftc.gov", "support.microsoft.com", "support.apple.com", "support.mozilla.org", "ic3.gov", "europa.eu"]);
   const sources = Array.isArray(article.sources) ? article.sources : [];
   const validSources = sources.filter((source) => {
@@ -404,7 +404,7 @@ app.get("/api/automation/status", async (_req, res) => {
 });
 
 app.post("/api/automation/test-writer", async (req, res) => {
-  const suppliedKey = req.get("authorization")?.replace(/^Bearer\\s+/i, "") || "";
+  const suppliedKey = req.get("authorization")?.replace(/^Bearer\s+/i, "") || "";
   if (!process.env.AUTOMATION_SECRET || !safeEqual(suppliedKey, process.env.AUTOMATION_SECRET)) {
     return res.status(401).json({ error: "unauthorized" });
   }
