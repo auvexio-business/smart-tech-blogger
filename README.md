@@ -9,7 +9,7 @@ Backend for **دليل التقنية الذكية | Smart Tech Guide**. This pr
 - PostgreSQL-backed sessions (so OAuth sessions are not stored in an in-memory process store).
 - Endpoint to list the authenticated user's Blogger blogs.
 - Endpoint to create a Blogger post as a draft or publish it.
-- Gemini 2.5 Flash-Lite article generation using the free tier where available.
+- Gemini article generation with configurable model failover to reduce interruptions during temporary capacity spikes.
 - Encrypted persistence of the Blogger refresh token for background publishing.
 - Daily publishing endpoint protected by a shared secret, with a GitHub Actions schedule.
 - Basic article checks (minimum length, structure, and removal of executable HTML), plus a fixed topic list to prevent reusing the same planned topic.
@@ -44,6 +44,7 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 | `GOOGLE_REDIRECT_URI` | Exact deployed callback URL |
 | `BLOGGER_SCOPE` | Blogger OAuth scope |
 | `GEMINI_API_KEY` | Gemini API key from Google AI Studio |
+| `GEMINI_MODELS` | Optional comma-separated Gemini model fallback order; defaults to `gemini-3.5-flash-lite,gemini-3.8-flash,gemini-3.1-flash-lite` |
 
 ## API
 
@@ -64,7 +65,7 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 3. In GitHub repository Settings → Secrets and variables → Actions, create one repository secret named `GEMINI_API_KEY` with the same Gemini API key.
 4. The workflow runs daily at 06:00 UTC (09:00 Saudi Arabia time). It can also be started manually from the Actions tab.
 
-The initial topic queue contains 16 planned articles and stops when those topics are used. The article checks are automated safeguards, not a guarantee of factual accuracy, originality, SEO performance, or AdSense approval. The free Gemini tier has model- and account-specific limits, and Google may process submitted prompts/content under its free-tier terms.
+The initial topic queue contains 16 planned articles and stops when those topics are used. The article checks are automated safeguards, not a guarantee of factual accuracy, originality, SEO performance, or AdSense approval. Gemini model availability and free-tier limits vary by model, account, and current capacity. The generator tries the configured model list in order and retries temporary capacity/rate-limit failures before moving to the next model. Google may process submitted prompts/content under its free-tier terms.
 
 The Blogger API publishes posts but does not manage the Blogger theme/template. Theme installation remains a separate Blogger-admin task.
 
