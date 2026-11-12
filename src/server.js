@@ -146,6 +146,7 @@ app.get("/api/blogs", requireGoogleAuth, async (req, res) => {
     });
     const blogger = google.blogger({ version: "v3", auth });
     const result = await blogger.blogs.listByUser({ userId: "self" });
+    await persistBloggerCredentials(req.session.googleTokens);
     res.json({ blogs: result.data.items || [] });
   } catch (err) {
     console.error("Blogger blogs.listByUser failed:", err.message);
