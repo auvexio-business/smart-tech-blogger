@@ -279,18 +279,53 @@ async function generateArticle(topic) {
     "labels must contain 3-5 concise, relevant strings. No keyword stuffing. No markdown fences."
   ].join("\n");
 
-  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.45, maxOutputTokens: 8192 }
-    })
-  });
+  // Use a model fallback chain so temporary capacity spikes do not stop publishing.
+  // Override the comma-separated list with GEMINI_MODELS if a model is unavailable to this project.
+  const models = (process.env.GEMINI_MODELS || "gemini-3.5-flash-lite,gemini-3.8-flash,gemini-3.1-flash-lite")
+    .split(",").map((model) => model.trim()).filter(Boolean);
+  let textOutput = "";
+  let lastModelError = null;
 
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error?.message || "Gemini request failed (" + response.status + ")");
-  const textOutput = payload.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("") || "";
+  for (const model of models) {
+    let modelSucceeded = false;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await fetch(
+          "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { responseMimeType: "application/json", temperature: 0.45, maxOutputTokens: 8192 }
+            }),
+            signal: AbortSignal.timeout(120000)
+          }
+        );
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(payload.error?.message || "Gemini request failed (" + response.status + ")");
+          error.status = response.status;
+          throw error;
+        }
+        textOutput = payload.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("") || "";
+        if (!textOutput) throw new Error("Gemini returned an empty response from " + model);
+        modelSucceeded = true;
+        break;
+      } catch (error) {
+        lastModelError = error;
+        const retryable = [408, 429, 500, 502, 503, 504].includes(error.status) ||
+          /high demand|overloaded|temporarily unavailable|rate.?limit|timeout/i.test(error.message || "");
+        if (!retryable) break;
+        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 2500));
+      }
+    }
+    if (modelSucceeded) break;
+  }
+
+  if (!textOutput) {
+    throw new Error("All configured Gemini models failed. Last error: " + (lastModelError?.message || "No model response"));
+  }
 
   let article;
   try {
