@@ -11,14 +11,12 @@ jobs:
     steps:
       - name: Trigger the daily article
         env:
-          AUTOMATION_URL: ${{ secrets.BLOGGER_AUTOMATION_URL }}
-          AUTOMATION_SECRET: ${{ secrets.BLOGGER_AUTOMATION_SECRET }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          test -n "$AUTOMATION_URL"
-          test -n "$AUTOMATION_SECRET"
+          test -n "$GEMINI_API_KEY"
           curl --fail-with-body --silent --show-error \
             --retry 3 --retry-delay 20 --retry-all-errors --max-time 300 \
             -X POST \
-            -H "Authorization: Bearer $AUTOMATION_SECRET" \
+            -H "Authorization: Bearer $GEMINI_API_KEY" \
             -H "Content-Type: application/json" \
-            "$AUTOMATION_URL/api/automation/run"
+            "https://smart-tech-blogger.onrender.com/api/automation/run"
