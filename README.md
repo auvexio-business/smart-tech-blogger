@@ -54,7 +54,7 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 - `GET /api/blogs` — list Blogger blogs for the connected account.
 - `POST /api/posts` — create a post. JSON body: `{ "blogId": "...", "title": "...", "content": "...", "labels": [], "isDraft": true }`.
 - `GET /api/automation/status` — show automation setup status.
-- `POST /api/automation/run` — generate and publish one article; requires `Authorization: Bearer <AUTOMATION_SECRET>`.
+- `POST /api/automation/run` — generate and publish one article; requires `Authorization: Bearer <GEMINI_API_KEY>`.
 - `POST /auth/logout` — end the current session.
 
 ## Daily publishing setup
