@@ -44,7 +44,6 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 | `GOOGLE_REDIRECT_URI` | Exact deployed callback URL |
 | `BLOGGER_SCOPE` | Blogger OAuth scope |
 | `GEMINI_API_KEY` | Gemini API key from Google AI Studio |
-| `AUTOMATION_SECRET` | Long random secret required by the scheduled publishing endpoint |
 
 ## API
 
@@ -60,11 +59,9 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 
 ## Daily publishing setup
 
-1. Add `GEMINI_API_KEY` and `AUTOMATION_SECRET` to the Render web service environment.
+1. Add `GEMINI_API_KEY` to the Render web service environment.
 2. After deployment, open `/api/blogs` once while signed in; this stores the Blogger refresh token encrypted in PostgreSQL for background publishing.
-3. In GitHub repository Settings → Secrets and variables → Actions, create:
-   - `BLOGGER_AUTOMATION_URL` = `https://smart-tech-blogger.onrender.com`
-   - `BLOGGER_AUTOMATION_SECRET` = the same value as Render's `AUTOMATION_SECRET`
+3. In GitHub repository Settings → Secrets and variables → Actions, create one repository secret named `GEMINI_API_KEY` with the same Gemini API key.
 4. The workflow runs daily at 06:00 UTC (09:00 Saudi Arabia time). It can also be started manually from the Actions tab.
 
 The initial topic queue contains 16 planned articles and stops when those topics are used. The article checks are automated safeguards, not a guarantee of factual accuracy, originality, SEO performance, or AdSense approval. The free Gemini tier has model- and account-specific limits, and Google may process submitted prompts/content under its free-tier terms.
