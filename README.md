@@ -9,7 +9,7 @@ Backend for **دليل التقنية الذكية | Smart Tech Guide**. This pr
 - PostgreSQL-backed sessions (so OAuth sessions are not stored in an in-memory process store).
 - Endpoint to list the authenticated user's Blogger blogs.
 - Endpoint to create a Blogger post as a draft or publish it.
-- Open-weight article generation through OpenRouter's free-model router.
+- Article generation through the Groq API (model and account limits depend on the selected Groq tier).
 - Encrypted persistence of the Blogger refresh token for background publishing.
 - Daily publishing endpoint protected by a dedicated automation secret, with a GitHub Actions schedule.
 - Basic article checks (minimum length, structure, and removal of executable HTML), plus a fixed topic list to prevent reusing the same planned topic.
@@ -43,6 +43,9 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 | `GOOGLE_CLIENT_SECRET` | OAuth web client secret |
 | `GOOGLE_REDIRECT_URI` | Exact deployed callback URL |
 | `BLOGGER_SCOPE` | Blogger OAuth scope |
+| `GROQ_API_KEY` | Groq API key (keep secret; never commit it) |
+| `GROQ_MODEL` | Groq model ID (defaults to `llama-3.3-70b-versatile`) |
+| `AUTOMATION_SECRET` | Secret used to authorize automation endpoints |
 
 ## API
 
@@ -53,6 +56,7 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 - `GET /api/blogs` — list Blogger blogs for the connected account.
 - `POST /api/posts` — create a post. JSON body: `{ "blogId": "...", "title": "...", "content": "...", "labels": [], "isDraft": true }`.
 - `GET /api/automation/status` — show automation setup status.
+- `POST /api/automation/test-writer` — generate a test article without publishing; requires `Authorization: Bearer AUTOMATION_SECRET`.
 - `POST /auth/logout` — end the current session.
 
 ## Daily publishing setup
@@ -60,7 +64,7 @@ Never commit `.env`, OAuth client secrets, access tokens, or refresh tokens.
 2. After deployment, open `/api/blogs` once while signed in; this stores the Blogger refresh token encrypted in PostgreSQL for background publishing.
 4. The workflow runs daily at 06:00 UTC (09:00 Saudi Arabia time). It can also be started manually from the Actions tab.
 
-The initial topic queue contains 16 planned articles and stops when those topics are used. The article checks are automated safeguards, not a guarantee of factual accuracy, originality, SEO performance, or AdSense approval. The default OpenRouter free-model router selects from currently available free models and is rate-limited; availability, output quality, and response length can vary. The system retries temporary provider failures and rejects articles that fail editorial checks. OpenRouter and its selected inference provider process submitted prompts/content under their applicable terms.
+The initial topic queue contains 16 planned articles and stops when those topics are used. The article checks are automated safeguards, not a guarantee of factual accuracy, originality, SEO performance, or AdSense approval. Groq model availability, free-tier eligibility, rate limits, and pricing depend on the selected model and account tier. Confirm the selected model is available on the account's free tier before enabling scheduled generation. The system retries temporary provider failures and rejects articles that fail editorial checks. Groq processes submitted prompts/content under its applicable terms.
 
 The Blogger API publishes posts but does not manage the Blogger theme/template. Theme installation remains a separate Blogger-admin task.
 
