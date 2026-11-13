@@ -155,9 +155,10 @@ app.get("/api/blogs", requireGoogleAuth, async (req, res) => {
 });
 
 app.post("/api/posts", requireGoogleAuth, async (req, res) => {
-  const { blogId, title, content, labels = [], isDraft = false } = req.body || {};
+  const { blogId, title, content, labels = [], isDraft = false, searchDescription = "" } = req.body || {};
   if (!blogId || typeof title !== "string" || !title.trim() ||
-      typeof content !== "string" || !content.trim()) {
+      typeof content !== "string" || !content.trim() ||
+      typeof searchDescription !== "string" || searchDescription.length > 150) {
     return res.status(400).json({
       error: "invalid_post",
       message: "blogId, title, and content are required."
@@ -177,7 +178,12 @@ app.post("/api/posts", requireGoogleAuth, async (req, res) => {
     const result = await blogger.posts.insert({
       blogId: String(blogId),
       isDraft: Boolean(isDraft),
-      requestBody: { title: title.trim(), content, labels }
+      requestBody: {
+        title: title.trim(),
+        content,
+        labels,
+        ...(searchDescription.trim() ? { searchDescription: searchDescription.trim() } : {})
+      }
     });
     res.status(201).json({ post: result.data });
   } catch (err) {
