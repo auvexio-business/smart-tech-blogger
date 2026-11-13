@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html b:version="2" class="v2" expr:dir="data:blog.languageDirection" xmlns="http://www.w3.org/1999/xhtml" xmlns:b="http://www.google.com/2005/gml/b" xmlns:data="http://www.google.com/2005/gml/data" xmlns:expr="http://www.google.com/2005/gml/expr">
+<head>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+  <b:include data="blog" name="all-head-content"/>
+  <title><data:blog.pageTitle/></title>
+  <b:skin><![CDATA[
+    :root{--bg:#0b1220;--surface:#111c2e;--surface2:#17243a;--text:#eaf1fb;--muted:#9aabc2;--accent:#38bdf8;--accent2:#818cf8;--line:#26364e;--radius:18px;--max:1160px}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.75 Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:var(--accent);text-decoration:none}a:hover{color:#bae6fd}
+    img{max-width:100%;height:auto}
+    .site-wrap{min-height:100vh;display:flex;flex-direction:column}
+    .container{width:min(var(--max),calc(100% - 36px));margin-inline:auto}
+    .topbar{border-bottom:1px solid var(--line);background:#0b1220}
+    .topbar-inner{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:13px;color:var(--text);font-size:1.2rem;font-weight:800;letter-spacing:-.03em}
+    .brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#07111f;font-weight:900}
+    .brand-sub{display:block;color:var(--muted);font-size:.72rem;font-weight:500;letter-spacing:.04em}
+    .nav{display:flex;align-items:center;gap:22px;flex-wrap:wrap}.nav a{color:#c8d5e7;font-size:.92rem;font-weight:600}.nav a:hover{color:var(--accent)}
+    .hero{padding:64px 0 46px;background:radial-gradient(ellipse at 80% 0%,rgba(56,189,248,.15),transparent 38%),radial-gradient(ellipse at 10% 20%,rgba(129,140,248,.13),transparent 34%)}
+    .hero-grid{display:grid;grid-template-columns:1.4fr .8fr;gap:36px;align-items:center}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;color:#7dd3fc;font-size:.78rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+    .hero h1{max-width:760px;margin:15px 0;font-size:clamp(2.2rem,5vw,4.1rem);line-height:1.08;letter-spacing:-.055em}
+    .hero p{max-width:660px;margin:0;color:#b6c5d9;font-size:1.08rem}
+    .hero-panel{padding:25px;border:1px solid #2b4564;border-radius:22px;background:linear-gradient(145deg,rgba(23,36,58,.94),rgba(17,28,46,.84));box-shadow:0 22px 70px rgba(0,0,0,.2)}
+    .hero-panel strong{display:block;font-size:1.08rem;margin-bottom:8px}.hero-panel p{font-size:.92rem}
+    .search-form{display:flex;gap:8px;margin-top:20px}.search-form input{min-width:0;flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#0b1525;color:var(--text);font:inherit}.search-form button{padding:0 17px;border:0;border-radius:12px;background:var(--accent);color:#07111f;font-weight:800;cursor:pointer}
+    .content-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:34px;padding:38px 0 70px;flex:1}
+    .section-heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:20px}.section-heading h2{margin:0;font-size:1.5rem;letter-spacing:-.03em}.section-heading p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+    .post-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .post-card{overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);transition:transform .2s,border-color .2s}.post-card:hover{transform:translateY(-3px);border-color:#3d6488}
+    .post-card-body{padding:21px}.post-meta{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.78rem}.post-card h3{margin:10px 0;font-size:1.2rem;line-height:1.35;letter-spacing:-.02em}.post-card h3 a{color:var(--text)}.post-card h3 a:hover{color:var(--accent)}
+    .post-snippet{margin:0;color:#aebed2;font-size:.92rem}.read-more{display:inline-flex;margin-top:16px;font-size:.86rem;font-weight:800}
+    .sidebar-card{padding:21px;margin-bottom:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}.sidebar-card h3{margin:0 0 12px;font-size:1.05rem}.sidebar-card p{margin:0;color:var(--muted);font-size:.9rem}
+    .sidebar-card ul{list-style:none;margin:0;padding:0}.sidebar-card li{padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}.sidebar-card li:first-child{border-top:0}
+    .post-page{min-width:0}.post-body{padding:clamp(22px,4vw,44px);border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+    .post-body h1{font-size:clamp(2rem,4vw,3.2rem);line-height:1.15;letter-spacing:-.045em;margin:12px 0 18px}.post-content{color:#d4deeb;font-size:1.04rem}.post-content h2,.post-content h3{color:var(--text);line-height:1.3;letter-spacing:-.025em;margin-top:1.8em}.post-content h2{font-size:1.65rem}.post-content h3{font-size:1.25rem}.post-content a{text-decoration:underline;text-underline-offset:3px}.post-content blockquote{margin:24px 0;padding:14px 20px;border-left:3px solid var(--accent);background:var(--surface2);color:#c7d5e7}.post-content pre,.post-content code{max-width:100%;overflow:auto;background:#08111f;border-radius:8px}.post-content img{border-radius:12px}
+    .post-labels{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.post-labels a{padding:5px 10px;border:1px solid var(--line);border-radius:99px;color:#a9dfff;font-size:.78rem}
+    .pager{display:flex;justify-content:space-between;gap:12px;margin-top:24px}.pager a{padding:10px 15px;border:1px solid var(--line);border-radius:11px;background:var(--surface);font-weight:700}
+    .site-footer{margin-top:auto;border-top:1px solid var(--line);background:#08101d}.footer-inner{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:25px 0;color:var(--muted);font-size:.84rem}.footer-inner a{color:#b9dff5}
+    .blog-pager,.feed-links{display:none}
+    @media(max-width:850px){.hero-grid{grid-template-columns:1fr}.content-layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.sidebar-card{margin:0}}
+    @media(max-width:600px){.container{width:min(100% - 26px,var(--max))}.topbar-inner{align-items:flex-start;flex-direction:column;padding:14px 0}.nav{gap:15px}.hero{padding:42px 0 30px}.post-grid{grid-template-columns:1fr}.sidebar{grid-template-columns:1fr}.content-layout{padding-top:26px}.footer-inner{align-items:flex-start;flex-direction:column}.search-form button{padding:0 12px}}
+  ]]></b:skin>
+</head>
+<body>
+<div class="site-wrap">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" expr:href="data:blog.homepageUrl">
+        <span class="brand-mark">A</span>
+        <span><data:blog.title/><span class="brand-sub">SMART TECH • AI • DIGITAL SKILLS</span></span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a expr:href="data:blog.homepageUrl">Home</a>
+        <a href="/search/label/Artificial%20Intelligence">AI</a>
+        <a href="/search/label/Technology">Technology</a>
+        <a href="/p/about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <b:if cond="data:blog.pageType == &quot;index&quot;">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">Practical technology, made simple</span>
+          <h1>Understand AI. Use technology smarter.</h1>
+          <p>Clear guides, useful tools, and practical ideas to help you work smarter and keep up with the digital world.</p>
+        </div>
+        <div class="hero-panel">
+          <strong>Explore the latest insights</strong>
+          <p>Discover practical tutorials, honest tool guides, and simple explanations of emerging technology.</p>
+          <form action="/search" class="search-form" method="get">
+            <input aria-label="Search articles" name="q" placeholder="Search the blog..." type="search"/>
+            <button type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </b:if>
+
+  <main class="container content-layout">
+    <section class="post-page">
+      <b:section class="main-section" id="main" maxwidgets="1" showaddelement="no">
+        <b:widget id="Blog1" locked="true" title="Blog Posts" type="Blog" version="2" visible="true">
+          <b:includable id="main" var="top">
+            <b:if cond="data:blog.pageType == &quot;index&quot;">
+              <div class="section-heading"><div><h2>Latest articles</h2><p>Fresh ideas and practical guides</p></div></div>
+              <div class="post-grid">
+                <b:loop values="data:posts" var="post">
+                  <article class="post-card">
+                    <div class="post-card-body">
+                      <div class="post-meta"><span><data:post.timestamp/></span><b:if cond="data:post.labels"><span><data:post.labels.first.name/></span></b:if></div>
+                      <h3><a expr:href="data:post.url"><data:post.title/></a></h3>
+                      <p class="post-snippet"><data:post.snippet/></p>
+                      <a class="read-more" expr:href="data:post.url">Read article →</a>
+                    </div>
+                  </article>
+                </b:loop>
+              </div>
+              <div class="pager"><b:if cond="data:newerPageUrl"><a expr:href="data:newerPageUrl">← Newer posts</a></b:if><b:if cond="data:olderPageUrl"><a expr:href="data:olderPageUrl">Older posts →</a></b:if></div>
+            <b:else/>
+              <b:loop values="data:posts" var="post">
+                <article class="post-body">
+                  <div class="post-meta"><span><data:post.timestamp/></span><span>Smart Tech Guide</span></div>
+                  <h1><data:post.title/></h1>
+                  <div class="post-content"><data:post.body/></div>
+                  <b:if cond="data:post.labels">
+                    <div class="post-labels"><b:loop values="data:post.labels" var="label"><a expr:href="data:label.url"><data:label.name/></a></b:loop></div>
+                  </b:if>
+                </article>
+              </b:loop>
+            </b:if>
+          </b:includable>
+        </b:widget>
+      </b:section>
+    </section>
+
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <h3>About this blog</h3>
+        <p>Smart Tech Guide shares practical, easy-to-follow information about artificial intelligence, useful technology, and digital skills.</p>
+      </div>
+      <b:section id="sidebar" maxwidgets="6" showaddelement="yes">
+        <b:widget id="PopularPosts1" locked="false" title="Popular articles" type="PopularPosts" version="2" visible="true"/>
+        <b:widget id="Label1" locked="false" title="Topics" type="Label" version="2" visible="true"/>
+      </b:section>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <data:blog.title/>. All rights reserved.</span>
+      <span>Built for curious minds and smarter work.</span>
+    </div>
+  </footer>
+</div>
+</body>
+</html>
