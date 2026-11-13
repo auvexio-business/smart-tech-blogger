@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html b:version="2" class="v2" expr:dir="data:blog.languageDirection" xmlns="http://www.w3.org/1999/xhtml" xmlns:b="http://www.google.com/2005/gml/b" xmlns:data="http://www.google.com/2005/gml/data" xmlns:expr="http://www.google.com/2005/gml/expr">
+<html b:version="2" class="v2" lang="en" dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:b="http://www.google.com/2005/gml/b" xmlns:data="http://www.google.com/2005/gml/data" xmlns:expr="http://www.google.com/2005/gml/expr">
 <head>
   <meta content="width=device-width, initial-scale=1" name="viewport"/>
   <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
   <b:include data="blog" name="all-head-content"/>
-  <title><data:blog.pageTitle/></title>
-  <meta expr:content="data:blog.pageTitle" property="og:title"/>
+  <b:if cond='data:blog.pageType == "index"'><title>Smart Tech Guide | AI, Technology &amp; Productivity</title><b:else/><title><data:blog.pageName/> | Smart Tech Guide</title></b:if>
+  <meta content="Smart Tech Guide | AI, Technology &amp; Productivity" property="og:site_name"/>
   <meta expr:content="data:blog.url" property="og:url"/>
   <meta expr:content="data:blog.metaDescription" property="og:description"/>
-  <meta expr:content="data:blog.pageTitle" name="twitter:title"/>
+  <meta content="Smart Tech Guide | AI, Technology &amp; Productivity" name="twitter:title"/>
   <meta expr:content="data:blog.metaDescription" name="twitter:description"/>
   <meta content="summary" name="twitter:card"/>
   <b:if cond='data:blog.pageType == "item"'>
@@ -64,7 +64,7 @@
     <div class="container topbar-inner">
       <a class="brand" expr:href="data:blog.homepageUrl">
         <span class="brand-mark">A</span>
-        <span><data:blog.title/><span class="brand-sub">SMART TECH • AI • DIGITAL SKILLS</span></span>
+        <span>Smart Tech Guide<span class="brand-sub">AI • TECHNOLOGY • DIGITAL SKILLS</span></span>
       </a>
       <nav class="nav" aria-label="Main navigation">
         <a expr:href="data:blog.homepageUrl">Home</a>
@@ -146,7 +146,7 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span>© <data:blog.title/>. All rights reserved.</span>
+      <span>© Smart Tech Guide. All rights reserved.</span>
       <span>Built for curious minds and smarter work.</span>
     </div>
   </footer>
