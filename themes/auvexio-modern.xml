@@ -6,6 +6,17 @@
   <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
   <b:include data="blog" name="all-head-content"/>
   <title><data:blog.pageTitle/></title>
+  <meta expr:content="data:blog.pageTitle" property="og:title"/>
+  <meta expr:content="data:blog.url" property="og:url"/>
+  <meta expr:content="data:blog.metaDescription" property="og:description"/>
+  <meta expr:content="data:blog.pageTitle" name="twitter:title"/>
+  <meta expr:content="data:blog.metaDescription" name="twitter:description"/>
+  <meta content="summary" name="twitter:card"/>
+  <b:if cond='data:blog.pageType == "item"'>
+    <meta content="article" property="og:type"/>
+  <b:else/>
+    <meta content="website" property="og:type"/>
+  </b:if>
   <b:skin><![CDATA[
     :root{--bg:#0b1220;--surface:#111c2e;--surface2:#17243a;--text:#eaf1fb;--muted:#9aabc2;--accent:#38bdf8;--accent2:#818cf8;--line:#26364e;--radius:18px;--max:1160px}
     *{box-sizing:border-box}
